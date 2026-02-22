@@ -12,8 +12,10 @@
     "restore": "./scripts/restore-database.sh",
     "admin:init": "node scripts/init-admin.js",
     "admin:ensure": "node scripts/ensure-admin.js",
+    "admin:ensure:vercel": "node scripts/ensure-admin-vercel.js",
     "db:migrate": "node scripts/migrate.js",
     "db:setup": "npm run db:migrate",
+    "db:setup:vercel": "npx tsx scripts/setup-db-vercel.ts",
     "prod:deploy": "./scripts/production-setup.sh",
     "prod:verify": "./scripts/verify-deployment.sh"
   },

@@ -1,4 +1,4 @@
-import { sql } from '@/lib/db-pool';
+import { sql } from '@/lib/db-pool-vercel';
 
 export interface Product {
   id: number
