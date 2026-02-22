@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCategories } from '@/lib/db';
+import { getCategories, getCategory } from '@/lib/db';
 import { ensureDatabaseInitialized } from '@/lib/db-init';
 
 export async function GET(request: NextRequest) {
@@ -8,7 +8,12 @@ export async function GET(request: NextRequest) {
     const slug = searchParams.get('slug');
     
     await ensureDatabaseInitialized();
-    const result = await getCategories(slug || undefined);
+    let result;
+    if (slug) {
+      result = await getCategory(slug);
+    } else {
+      result = await getCategories();
+    }
     
     if (result.success) {
       return NextResponse.json({ 
