@@ -45,8 +45,8 @@ class EmailService {
   async initializeTransporter() {
     if (!this.transporter) {
       const settingsResult = await getEmailSettings();
-      if (settingsResult.success && settingsResult.emailSettings && settingsResult.emailSettings.smtp_host) {
-        const emailSettings = settingsResult.emailSettings;
+      if (settingsResult.success && settingsResult.settings && settingsResult.settings.smtp_host) {
+        const emailSettings = settingsResult.settings;
         this.emailConfig = {
           host: emailSettings.smtp_host,
           port: emailSettings.smtp_port,
@@ -80,8 +80,8 @@ class EmailService {
 
     try {
       const settingsResult = await getEmailSettings();
-      const emailSettings = settingsResult.success && settingsResult.emailSettings
-        ? settingsResult.emailSettings
+      const emailSettings = settingsResult.success && settingsResult.settings
+        ? settingsResult.settings
         : null;
 
       // Use custom template if available, otherwise use default

@@ -35,10 +35,10 @@ export async function GET(request: NextRequest) {
     // Check Email configuration
     try {
       const emailSettings = await getEmailSettings();
-      if (emailSettings.success && emailSettings.emailSettings) {
+      if (emailSettings.success && emailSettings.settings) {
         status.email = {
           configured: true,
-          details: `SMTP: ${emailSettings.emailSettings.smtp_host}:${emailSettings.emailSettings.smtp_port}`
+          details: `SMTP: ${emailSettings.settings.smtp_host}:${emailSettings.settings.smtp_port}`
         };
       } else {
         status.email = {
