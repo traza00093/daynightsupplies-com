@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    return new Response(JSON.stringify({ emailSettings: result.emailSettings }), {
+    return new Response(JSON.stringify({ emailSettings: result.settings }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     })
