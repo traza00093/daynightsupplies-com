@@ -52,8 +52,7 @@ export async function runSchemaMigration(): Promise<{ success: boolean; error?: 
     const rawSql = neon(process.env.DATABASE_URL!);
 
     for (const statement of schemaStatements) {
-      // @ts-ignore - neon() accepts raw SQL strings at runtime
-      await rawSql(statement);
+      await rawSql.unsafe(statement);
     }
     return { success: true };
   } catch (error) {
