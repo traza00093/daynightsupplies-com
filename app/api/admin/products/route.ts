@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     const categoryId = searchParams.get('categoryId')
     const limit = parseInt(searchParams.get('limit') || '50')
     await ensureDatabaseInitialized()
-    const result = await getProducts(categoryId || undefined, limit)
+    const result = await getProducts(limit, 0, categoryId || undefined)
 
     if (result.success) {
       return createAdminResponse({ products: result.products })

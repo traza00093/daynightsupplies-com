@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
 
   try {
     await ensureDatabaseInitialized()
-    const result = await getProducts(categoryId || undefined, limit)
+    const result = await getProducts(limit, 0, categoryId || undefined)
     if (result.success) {
       return NextResponse.json({ success: true, products: result.products })
     } else {
