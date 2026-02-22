@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import { schemaStatements } from './schema-statements';
-import { sql } from './db-pool-vercel'; // Use the single, correct Vercel pool
+import { getDb } from './db-pool-vercel';
 
 // ... (rest of the file is unchanged)
 
@@ -15,6 +15,7 @@ export interface DatabaseStatus {
  * Check if database tables exist and if an admin user is present.
  */
 export async function checkDatabaseStatus(): Promise<DatabaseStatus> {
+  const sql = getDb();
   try {
     const tables = await sql`
       SELECT table_name FROM information_schema.tables
@@ -49,6 +50,7 @@ export async function checkDatabaseStatus(): Promise<DatabaseStatus> {
  * Uses neon() directly with raw strings (same pattern as scripts/setup-db.ts).
  */
 export async function runSchemaMigration(): Promise<{ success: boolean; error?: string }> {
+  const sql = getDb();
   try {
     // Execute each schema statement sequentially using the single, correct database pool.
     for (const statement of schemaStatements) {
@@ -77,6 +79,7 @@ export async function createFirstAdmin(data: {
   firstName: string;
   lastName: string;
 }): Promise<{ success: boolean; error?: string }> {
+  const sql = getDb();
   try {
     const passwordHash = await bcrypt.hash(data.password, 12);
 

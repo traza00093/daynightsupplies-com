@@ -2,7 +2,7 @@ import { NextAuthOptions } from 'next-auth';
 import { DefaultSession } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
-import { sql } from '@/lib/db-pool';
+import { getDb } from '@/lib/db-pool-vercel';
 
 declare module 'next-auth' {
   interface Session {
@@ -27,6 +27,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
+          const sql = getDb();
           const users = await sql`
             SELECT * FROM users WHERE email = ${credentials.email} LIMIT 1
           `;

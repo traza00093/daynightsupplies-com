@@ -1,46 +1,40 @@
-import { neon } from '@neondatabase/serverless';
+import { neon, NeonQueryFunction } from '@neondatabase/serverless';
 
-// Build DATABASE_URL from Vercel's PostgreSQL environment variables
 function buildDatabaseUrl(): string {
-  // Check if DATABASE_URL is already set
+  // This function prioritizes Vercel's POSTGRES_URL_NON_POOLING
+  // but falls back to the standard PG* environment variables.
+  if (process.env.POSTGRES_URL_NON_POOLING) {
+    return process.env.POSTGRES_URL_NON_POOLING;
+  }
   if (process.env.DATABASE_URL) {
     return process.env.DATABASE_URL;
   }
-
-  // Build from Vercel's PostgreSQL variables
-  const host = process.env.PGHOST_UNPOOLED || process.env.PGHOST;
+  const host = process.env.PGHOST;
   const database = process.env.PGDATABASE;
   const user = process.env.PGUSER;
   const password = process.env.PGPASSWORD;
   const port = process.env.PGPORT || '5432';
 
   if (!host || !database || !user || !password) {
-    throw new Error('Missing required PostgreSQL environment variables. Please ensure PGHOST, PGDATABASE, PGUSER, and PGPASSWORD are set.');
+    throw new Error('Missing required PostgreSQL environment variables for Vercel. Please ensure POSTGRES_URL_NON_POOLING or all PG* variables are set.');
   }
 
   return `postgresql://${user}:${password}@${host}:${port}/${database}?sslmode=require`;
 }
 
-let _sql: ReturnType<typeof neon> | null = null;
+// Singleton instance of the database connection
+let sql: NeonQueryFunction<false, false>;
 
-function getSQL(): ReturnType<typeof neon> {
-  if (!_sql) {
+/**
+ * Returns a singleton instance of the Neon database connection pool.
+ * Creates the connection on the first call.
+ * This is the ONLY way the application should get a database connection.
+ */
+export function getDb(): NeonQueryFunction<false, false> {
+  if (!sql) {
     const databaseUrl = buildDatabaseUrl();
-    console.log('Connecting to database with URL:', databaseUrl.replace(/:[^:@]+@/, ':****@')); // Mask password in logs
-    _sql = neon(databaseUrl);
+    console.log('Initializing database connection...');
+    sql = neon(databaseUrl);
   }
-  return _sql;
+  return sql;
 }
-
-// Tagged template function that lazily initializes the Neon connection.
-// Uses a Proxy so the connection is not established at module import time
-// (which would fail during Next.js build when DATABASE_URL is not available).
-export const sql = new Proxy(
-  function () {} as unknown as ReturnType<typeof neon>,
-  {
-    apply(_target: any, _thisArg: any, args: any[]) {
-      const realSql = getSQL();
-      return (realSql as any).apply(null, args);
-    },
-  }
-) as unknown as (strings: TemplateStringsArray, ...values: any[]) => Promise<Record<string, any>[]>;
