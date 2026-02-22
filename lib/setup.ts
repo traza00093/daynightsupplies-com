@@ -1,8 +1,9 @@
 import crypto from 'crypto';
-import { neon } from '@neondatabase/serverless';
 import bcrypt from 'bcryptjs';
-import { sql } from '@/lib/db-pool';
 import { schemaStatements } from './schema-statements';
+import { sql } from './db-pool-vercel'; // Use the single, correct Vercel pool
+
+// ... (rest of the file is unchanged)
 
 export interface DatabaseStatus {
   tablesExist: boolean;
@@ -49,9 +50,7 @@ export async function checkDatabaseStatus(): Promise<DatabaseStatus> {
  */
 export async function runSchemaMigration(): Promise<{ success: boolean; error?: string }> {
   try {
-    const sql = neon(process.env.DATABASE_URL!);
-
-    // Execute each schema statement sequentially instead of using the problematic transaction API.
+    // Execute each schema statement sequentially using the single, correct database pool.
     for (const statement of schemaStatements) {
       if (statement.trim().length > 0) {
         await sql.unsafe(statement);
