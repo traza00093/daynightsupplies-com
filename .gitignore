@@ -50,3 +50,6 @@ logs
 # Backups
 backups/
 *.backup
+
+.vercel
+.env*.local

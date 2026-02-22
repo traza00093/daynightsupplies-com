@@ -44,7 +44,7 @@ async function setupDatabase() {
       } catch (error: any) {
         console.error(`✗ Error in statement ${i + 1}: ${statement.substring(0, 100)}...`);
         console.error('Error details:', error.message);
-        // Continue with other statements even if one fails
+        throw error; // Stop execution on first error
       }
     }
 
