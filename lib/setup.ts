@@ -51,19 +51,12 @@ export async function runSchemaMigration(): Promise<{ success: boolean; error?: 
   try {
     const sql = neon(process.env.DATABASE_URL!);
 
-    await sql.transaction((tx) => {
-      const queries = schemaStatements
-        .map((s) => s.trim())
-        .filter((s) => s.length > 0)
-        .map((statement) => tx.unsafe(statement));
-
-      // The Neon library has conflicting types for its transaction API.
-      // The runtime expects a function that returns an array of queries.
-      // The build-time types expect a specific `NeonQueryInTransaction[]`,
-      // but `tx.unsafe()` returns a more generic `UnsafeRawSql[]`.
-      // Casting to `any` bypasses this build-time check while satisfying the runtime.
-      return queries as any;
-    });
+    // Execute each schema statement sequentially instead of using the problematic transaction API.
+    for (const statement of schemaStatements) {
+      if (statement.trim().length > 0) {
+        await sql.unsafe(statement);
+      }
+    }
 
     return { success: true };
   } catch (error) {
