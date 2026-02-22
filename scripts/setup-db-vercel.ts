@@ -39,7 +39,7 @@ async function setupDatabase() {
       
       try {
         console.log(`Running statement ${i + 1}/${schemaStatements.length}...`);
-        await sql(statement);
+        await sql.unsafe(statement);
         console.log(`✓ Statement ${i + 1} completed`);
       } catch (error: any) {
         console.error(`✗ Error in statement ${i + 1}: ${statement.substring(0, 100)}...`);
