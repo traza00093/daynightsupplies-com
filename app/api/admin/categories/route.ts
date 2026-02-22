@@ -82,7 +82,7 @@ export async function DELETE(request: NextRequest) {
       return createErrorResponse('Category ID required', 400)
     }
 
-    const result = await deleteCategory(id)
+    const result = await deleteCategory(Number(id))
 
     if (result.success) {
       return createAdminResponse({ message: 'Category deleted successfully' })
