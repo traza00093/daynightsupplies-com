@@ -49,13 +49,15 @@ export async function checkDatabaseStatus(): Promise<DatabaseStatus> {
  */
 export async function runSchemaMigration(): Promise<{ success: boolean; error?: string }> {
   try {
-    const sql = neon(process.env.DATABASE_URL!); // Use the standard sql instance
+    const sql = neon(process.env.DATABASE_URL!);
 
-    await sql.transaction(async (tx) => {
-      for (const statement of schemaStatements) {
-        await tx.unsafe(statement);
-      }
-    });
+    // Create an array of queries to run in the transaction
+    const queries = schemaStatements
+      .map(s => s.trim())
+      .filter(s => s.length > 0)
+      .map(statement => sql.unsafe(statement));
+
+    await sql.transaction(queries);
 
     return { success: true };
   } catch (error) {
