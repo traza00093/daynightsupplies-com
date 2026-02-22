@@ -5,7 +5,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   try {
     const { id } = params;
 
-    const result = await getProductById(id);
+    const result = await getProductById(Number(id));
 
     if (!result.success || !result.product) {
       return NextResponse.json({ success: false, error: 'Product not found' }, { status: 404 });

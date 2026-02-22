@@ -95,7 +95,7 @@ export async function DELETE(request: NextRequest) {
       return createErrorResponse('Product ID required', 400)
     }
 
-    const result = await deleteProduct(id)
+    const result = await deleteProduct(Number(id))
 
     if (result.success) {
       return createAdminResponse({ message: 'Product deleted successfully' })
