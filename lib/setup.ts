@@ -1,7 +1,28 @@
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import { schemaStatements } from './schema-statements';
-import { getDb } from './db-pool-vercel';
+import { neon, NeonQueryFunction } from '@neondatabase/serverless';
+
+function buildDatabaseUrl() {
+  const dbUser = process.env.PGUSER;
+  const dbHost = process.env.PGHOST;
+  const dbPassword = process.env.PGPASSWORD;
+  const dbName = process.env.PGDATABASE;
+  if (!dbUser || !dbHost || !dbPassword || !dbName) {
+    throw new Error('Missing required PostgreSQL environment variables for setup');
+  }
+  return `postgresql://${dbUser}:${dbPassword}@${dbHost}/${dbName}?sslmode=require`;
+}
+
+let sql: NeonQueryFunction<false, false>;
+
+function getDb() {
+  if (!sql) {
+    const databaseUrl = process.env.DATABASE_URL || buildDatabaseUrl();
+    sql = neon(databaseUrl);
+  }
+  return sql;
+}
 
 // ... (rest of the file is unchanged)
 
