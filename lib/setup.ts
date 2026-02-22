@@ -49,11 +49,14 @@ export async function checkDatabaseStatus(): Promise<DatabaseStatus> {
  */
 export async function runSchemaMigration(): Promise<{ success: boolean; error?: string }> {
   try {
-    const rawSql = neon(process.env.DATABASE_URL!);
+    const sql = neon(process.env.DATABASE_URL!); // Use the standard sql instance
 
-    for (const statement of schemaStatements) {
-      await rawSql.unsafe(statement);
-    }
+    await sql.transaction(async (tx) => {
+      for (const statement of schemaStatements) {
+        await tx.unsafe(statement);
+      }
+    });
+
     return { success: true };
   } catch (error) {
     console.error('[setup] Migration failed:', error);
