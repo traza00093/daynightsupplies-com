@@ -51,13 +51,13 @@ export async function runSchemaMigration(): Promise<{ success: boolean; error?: 
   try {
     const sql = neon(process.env.DATABASE_URL!);
 
-    // Create an array of queries to run in the transaction
-    const queries = schemaStatements
-      .map(s => s.trim())
-      .filter(s => s.length > 0)
-      .map(statement => sql.unsafe(statement));
-
-    await sql.transaction(queries);
+    await sql.transaction((tx) => {
+      const queries = schemaStatements
+        .map(s => s.trim())
+        .filter(s => s.length > 0)
+        .map(statement => tx.unsafe(statement));
+      return queries;
+    });
 
     return { success: true };
   } catch (error) {
