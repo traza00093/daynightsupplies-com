@@ -20,11 +20,11 @@ export async function POST(request: NextRequest) {
     }
 
     const settingsResult = await getEmailSettings()
-    if (!settingsResult.success || !settingsResult.emailSettings) {
+    if (!settingsResult.success || !settingsResult.settings) {
       return NextResponse.json({ error: 'Failed to get email settings' }, { status: 500 })
     }
 
-    const emailSettings = settingsResult.emailSettings
+    const emailSettings = settingsResult.settings
 
     const transporter = nodemailer.createTransport({
       host: emailSettings.smtp_host,
